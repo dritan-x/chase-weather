@@ -1,0 +1,41 @@
+## Resources & Libraries
+
+- Koin DI
+- Kotlin idioms & coroutines
+- Jetpack Compose with Testing - espresso compose hybrid
+ - MVVM - each screen has its own ViewModel responsible for the business logic tied to that screen
+- Jetpack Navigation - created a dynamic graph on compose
+- Retrofit for networking
+- Coil for image loading and [built in memory and disk caching](https://coil-kt.github.io/coil/image_loaders/)
+- Kotlin coroutines
+- Android [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) for persisting last searched city and recent cities
+
+### MainScreen
+
+- LocationHandler is responsible for prompting user for location permissions, if they're already granted then LocationHandler will query the fused location client for device's lat and long coordinates and cache them in LocationViewModel
+ - Persist location in memory and include the LocationHandler composable only if the persisted location is stale (older than 20 min)
+ - Using a [fused location client](https://developer.android.com/training/location/retrieve-current) instead of [requesting location updates](https://developer.android.com/training/location/request-updates) saves time for the purposes of this challenge and keeps it relatively simple - just get the last known location.
+
+- Get last searched query that was persisted to DataStore
+
+- if we have a last searched query present, show weather for that search query
+- else, show weather for current device location
+
+- Tapping on search field navigates user to Search screen
+
+
+### SearchScreen
+- User can enter a US city name and tap on the "GO!" button to load the weather for typed city
+- Current location is visible underneath search field - tapping this should show the weather at that location BUT there is a bug here that's prevents it from showing the weather of the current location
+- Recent Searches shows the typed searches performed while the app was running. Tapping on any of them executes the query with their value - force closing the app clears them from memory.
+
+### Bugs
+- In Search screen tapping on current location does not show the weather for the current location
+ - due to this feature's low importance, I've focused my time on other parts of the app
+- When searching for an invalid city, the previously shown weather is shown instead of an error message
+- [UI Bug] - Sometimes after searching for a city from Search screen, the Main screen will transition twice
+
+### Edge Cases Handling
+- Device location updates from fused location client is limited to once in 20 minutes so long as app's memory isn't cleared
+- Separation of concerns - Compose screens have their own ViewModel and some of the ViewModels have matching Repositories that persist data to memory or disk via DataStore
+
